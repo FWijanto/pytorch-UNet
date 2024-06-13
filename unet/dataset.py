@@ -32,6 +32,26 @@ def correct_dims(*images):
         return corr_images
 
 
+class BasicImageDataset3D(Dataset):
+    def __init__(self, img_dir, label_dir, transform=None, target_transform=None):
+        self.img_dir = img_dir
+        self.label_dir = label_dir
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.img_labels)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
+        image = read_image(img_path)
+        label = self.img_labels.iloc[idx, 1]
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            label = self.target_transform(label)
+        return image, label
+
 class JointTransform2D:
     """
     Performs augmentation on image and mask when called. Due to the randomness of augmentation transforms,
