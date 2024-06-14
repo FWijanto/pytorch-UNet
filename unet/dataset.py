@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import torch
+import nibabel as nib
 
 from skimage import io
 
@@ -38,14 +39,18 @@ class BasicImageDataset3D(Dataset):
         self.label_dir = label_dir
         self.transform = transform
         self.target_transform = target_transform
+        img_path_list = [image for image in os.listdir(self.img_dir) if image.endswith(".nii.gz")]
+        label_path_list = [mask for mask in os.listdir(self.label_dir) if mask.endswith(".nii.gz")]
 
     def __len__(self):
-        return len(self.img_labels)
+        return len(label_path_list)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
-        image = read_image(img_path)
-        label = self.img_labels.iloc[idx, 1]
+        image = nib.load(img_path_list[idx]).get_fdata()
+        label = nib.load(label_path_list[idx]).get_fdata()
+
+        image = torch.tensor(image, dtype=torch.float32)
+        label = torch.tensor(label, dtype=torch.float32)
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
