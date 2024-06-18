@@ -13,7 +13,9 @@ from unet.dataset import JointTransform2D, ImageToImage2D, Image2D
 
 parser = ArgumentParser()
 parser.add_argument('--train_dataset', required=True, type=str)
+parser.add_argument('--train_labels', required=True, type=str)
 parser.add_argument('--val_dataset', type=str)
+parser.add_argument('--val_labels', required=True, type=str)
 parser.add_argument('--checkpoint_path', required=True, type=str)
 parser.add_argument('--device', default='cpu', type=str)
 parser.add_argument('--in_channels', default=3, type=int)
@@ -34,14 +36,11 @@ if args.crop is not None:
 else:
     crop = None
 
-tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
-tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
-train_dataset = ImageToImage2D(args.train_dataset, tf_val)
-val_dataset = ImageToImage2D(args.val_dataset, tf_val)
-predict_dataset = Image2D(args.val_dataset)
+train_dataset = BasicImageDataset3D(args.train_dataset, args.train_labels)
+val_dataset = BasicImageDataset3D(args.val_dataset, args.val_labels)
 
 conv_depths = [int(args.width*(2**k)) for k in range(args.depth)]
-unet = UNet2D(args.in_channels, args.out_channels, conv_depths)
+unet = UNet3D(args.in_channels, args.out_channels, conv_depths)
 loss = LogNLLLoss()
 optimizer = optim.Adam(unet.parameters(), lr=args.learning_rate)
 

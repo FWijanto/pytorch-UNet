@@ -145,24 +145,22 @@ class Model:
 
         return logs
 
-    def fit_dataset(self, dataset: ImageToImage2D, n_epochs: int, n_batch: int = 1, shuffle: bool = False,
-                    val_dataset: ImageToImage2D = None, save_freq: int = 100, save_model: bool = False,
-                    predict_dataset: Image2D = None, metric_list: MetricList = MetricList({}),
+    def fit_dataset(self, dataset: BasicImageDataset3D, n_epochs: int, n_batch: int = 1, shuffle: bool = False,
+                    val_dataset: BasicImageDataset3D = None, save_freq: int = 100, save_model: bool = False,
+                    metric_list: MetricList = MetricList({}),
                     verbose: bool = False):
 
         """
         Training loop for the network.
 
         Args:
-            dataset: an instance of unet.dataset.ImageToImage2D
+            dataset: an instance of unet.dataset.BasicImageDataset3D
             n_epochs: number of epochs
             shuffle: bool indicating whether or not suffle the dataset during training
-            val_dataset: validation dataset, instance of unet.dataset.ImageToImage2D (optional)
-            save_freq: frequency of saving the model and predictions from predict_dataset
+            val_dataset: validation dataset, instance of unet.dataset.BasicImageDataset3D (optional)
+            save_freq: frequency of saving the model
             save_model: bool indicating whether or not you wish to save the model itself
                 (useful for saving space)
-            predict_dataset: images to be predicted and saved during epochs determined
-                by save_freq, instance of unet.dataset.Image2D (optional)
             n_batch: size of batch during training
             metric_list: unet.utils.MetricList object, which contains metrics
                 to be recorded during validation
@@ -218,32 +216,8 @@ class Model:
                 epoch_save_path = os.path.join(self.checkpoint_folder, str(epoch_idx).zfill(4))
                 chk_mkdir(epoch_save_path)
                 torch.save(self.net, os.path.join(epoch_save_path, 'model.pt'))
-                if predict_dataset:
-                    self.predict_dataset(predict_dataset, epoch_save_path)
 
         # save the logger
         self.logger = logger
 
         return logger
-
-    def predict_dataset(self, dataset, export_path):
-        """
-        Predicts the images in the given dataset and saves it to disk.
-
-        Args:
-            dataset: the dataset of images to be exported, instance of unet.dataset.Image2D
-            export_path: path to folder where results to be saved
-        """
-        self.net.train(False)
-        chk_mkdir(export_path)
-
-        for batch_idx, (X_batch, *rest) in enumerate(DataLoader(dataset, batch_size=1)):
-            if isinstance(rest[0][0], str):
-                image_filename = rest[0][0]
-            else:
-                image_filename = '%s.png' % str(batch_idx + 1).zfill(3)
-
-            X_batch = Variable(X_batch.to(device=self.device))
-            y_out = self.net(X_batch).cpu().data.numpy()
-
-            io.imsave(os.path.join(export_path, image_filename), y_out[0, 1, :, :])
