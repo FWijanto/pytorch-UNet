@@ -39,14 +39,15 @@ class BasicImageDataset3D(Dataset):
         self.label_dir = label_dir
         self.transform = transform
         self.target_transform = target_transform
-        img_path_list = [image for image in os.listdir(self.img_dir) if image.endswith(".nii.gz")]
+        img_path_list = [[os.path.join(path, img) for img in files if img.endswith(".nii.gz")]
+                         for path, dirs, files in os.walk(self.img_dir) if path != self.img_dir]
         label_path_list = [mask for mask in os.listdir(self.label_dir) if mask.endswith(".nii.gz")]
 
     def __len__(self):
         return len(label_path_list)
 
     def __getitem__(self, idx):
-        image = nib.load(img_path_list[idx]).get_fdata()
+        image = np.array([nib.load(img[idx]).get_fdata() for img in img_path_list])
         label = nib.load(label_path_list[idx]).get_fdata()
 
         image = torch.tensor(image, dtype=torch.float32)
