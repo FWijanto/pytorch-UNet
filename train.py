@@ -55,5 +55,5 @@ model = Model(unet, loss, optimizer, results_folder, device=args.device)
 
 model.fit_dataset(train_dataset, n_epochs=args.epochs, n_batch=args.batch_size,
                   shuffle=True, val_dataset=val_dataset, save_freq=args.save_freq,
-                  save_model=args.save_model, predict_dataset=predict_dataset,
+                  save_model=args.save_model,
                   metric_list=metric_list, verbose=True)
