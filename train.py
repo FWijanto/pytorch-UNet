@@ -28,13 +28,8 @@ parser.add_argument('--save_freq', default=0, type=int)
 parser.add_argument('--save_model', default=0, type=int)
 parser.add_argument('--model_name', type=str, default='model')
 parser.add_argument('--learning_rate', type=float, default=1e-3)
-parser.add_argument('--crop', type=int, default=None)
-args = parser.parse_args()
 
-if args.crop is not None:
-    crop = (args.crop, args.crop)
-else:
-    crop = None
+args = parser.parse_args()
 
 train_dataset = BasicImageDataset3D(args.train_dataset, args.train_labels)
 val_dataset = BasicImageDataset3D(args.val_dataset, args.val_labels)
