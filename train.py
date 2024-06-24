@@ -5,11 +5,11 @@ import torch.optim as optim
 from functools import partial
 from argparse import ArgumentParser
 
-from unet.unet import UNet2D
+from unet.unet import UNet3D
 from unet.model import Model
 from unet.utils import MetricList
 from unet.metrics import jaccard_index, f1_score, LogNLLLoss
-from unet.dataset import JointTransform2D, ImageToImage2D, Image2D
+from unet.dataset import BasicImageDataset3D
 
 parser = ArgumentParser()
 parser.add_argument('--train_dataset', required=True, type=str)
