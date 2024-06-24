@@ -12,7 +12,7 @@ from skimage import io
 from time import time
 
 from .utils import chk_mkdir, Logger, MetricList
-from .dataset import ImageToImage2D, Image2D
+from .dataset import BasicImageDataset3D
 
 
 class Model:
