@@ -48,7 +48,7 @@ class BasicImageDataset3D(Dataset):
 
     def __getitem__(self, idx):
         image = np.array([nib.load(img[idx]).get_fdata() for img in self.img_path_list])
-        label = nib.load(self.label_path_list[idx]).get_fdata()
+        label = nib.load(os.path.join(self.label_dir, self.label_path_list[idx])).get_fdata()
 
         image = torch.tensor(image, dtype=torch.float32)
         label = torch.tensor(label, dtype=torch.float32)
